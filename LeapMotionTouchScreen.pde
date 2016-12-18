@@ -5,26 +5,37 @@
  * @author Wassim Gharbi
  */
 import de.voidplus.leapmotion.*;
+import java.awt.*;
+import java.awt.event.InputEvent;
 
 
 int x=0, y=0, w=0, h=0;
 ArrayList<PVector> corners;
 PVector[] plane;
 LeapMotion leap;
+Robot robot;
+boolean isMousePressed = false;
 
 void setup() {
   fullScreen(2);
   ellipseMode(CENTER);
-  x = 0;
-  y = 0;
-  w = width;
-  h = height;
+  x = 200;
+  y = 150;
+  w = 900;
+  h = 700;
   corners = new ArrayList<PVector>();
   leap = new LeapMotion(this);
+  try {
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    GraphicsDevice[] gs = ge.getScreenDevices();
+    robot = new Robot(gs[0]);
+  } catch (Exception e) {
+    e.printStackTrace();
+  }
 }
 
 void draw() {
-  background(255);
+  background(0);
   
   // Draw the touch area (black rectangle)
   fill(0);
@@ -69,7 +80,7 @@ void calibrate() {
   if (leap.getHands() != null && leap.getHands().size()>0)
     text("Right hand : " + leap.getHands().get(0),  x + w/2, y + h/2 + 30);
   if (leap.getHands() != null && leap.getHands().size()>0 &&  leap.getHands().get(0).getIndexFinger() != null)
-    text("Index finger : " + leap.getHands().get(0).getIndexFinger(),  x + w/2, y + h/2 + 60);
+ 
   // If space is pressed then register corner
   if (keyPressed && key == ' ' && leap.getHands() != null && leap.getHands().size() > 0 &&  leap.getHands().get(0).getIndexFinger() != null) {
     Finger fingerIndex = leap.getHands().get(0).getIndexFinger();
@@ -118,14 +129,34 @@ PVector intersection(PVector[] plane, PVector[] line){
 }
 
 void moveMouse() {
-  if (leap.getHands() != null && leap.getHands().size() > 0 &&  leap.getHands().get(0).getIndexFinger() != null) {
+  if (leap.getHands() != null
+  && leap.getHands().size() > 0
+  && leap.getHands().get(0) != null
+  && leap.getHands().get(0).getFingers() != null
+  && leap.getHands().get(0).getFingers().size() > 0
+  && leap.getHands().get(0).getIndexFinger() != null) {
     Finger fingerIndex = leap.getHands().get(0).getIndexFinger();
     
     PVector[] line = new PVector[]{fingerIndex.getPosition(), fingerIndex.getDirection()};
     PVector intersectionPoint = intersection(plane, line);
     PVector relativeTouchPoint = new PVector((intersectionPoint.x - corners.get(0).x)/(corners.get(1).x - corners.get(0).x),
-                                             1 - (intersectionPoint.y - corners.get(2).y)/(corners.get(0).y - corners.get(2 ).y));
+                                             1 - (intersectionPoint.y - corners.get(2).y)/(corners.get(0).y - corners.get(2 ).y),
+                                             (intersectionPoint.z - corners.get(0).z)/(corners.get(3).z - corners.get(0).z));
     fill(255);
-    ellipse(x + relativeTouchPoint.x * w, y + relativeTouchPoint.y * h, 10, 10);
+    text("Z : " + relativeTouchPoint.z, 40, 40);
+    if (relativeTouchPoint.z > -10 && relativeTouchPoint.z < 10) {
+      ellipse(x + relativeTouchPoint.x * w, y + relativeTouchPoint.y * h, 10, 10);
+      robot.mouseMove(int(x + relativeTouchPoint.x * w), int(y + relativeTouchPoint.y * h));
+      if(!isMousePressed){
+        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        isMousePressed=true;
+      }
+    } else {
+      robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      isMousePressed=false;
+    }
+  } else {
+      robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      isMousePressed=false;
   }
 }
