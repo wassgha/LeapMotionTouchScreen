@@ -17,7 +17,7 @@ Robot robot;
 boolean isMousePressed = false;
 
 void setup() {
-  fullScreen(2);
+  fullScreen(1);
   ellipseMode(CENTER);
   x = 200;
   y = 150;
@@ -141,10 +141,16 @@ void moveMouse() {
     PVector intersectionPoint = intersection(plane, line);
     PVector relativeTouchPoint = new PVector((intersectionPoint.x - corners.get(0).x)/(corners.get(1).x - corners.get(0).x),
                                              1 - (intersectionPoint.y - corners.get(2).y)/(corners.get(0).y - corners.get(2 ).y),
-                                             (intersectionPoint.z - corners.get(0).z)/(corners.get(3).z - corners.get(0).z));
+                                             abs((plane[1].z - line[0].z)/(plane[1].z - plane[0].z)));
     fill(255);
-    text("Z : " + relativeTouchPoint.z, 40, 40);
-    if (relativeTouchPoint.z > -10 && relativeTouchPoint.z < 10) {
+    text("Z finger : " + line[0].z, 40, 40);
+    text("Z intersection : " + intersectionPoint.z, 40, 60);
+    text("Z plane : " + plane[1].z, 40, 80);
+    text("Z corner top left : " + corners.get(0).z, 40, 100);
+    text("Z corner top right : " + corners.get(1).z, 40, 120);
+    text("Z corner bottom left : " + corners.get(2).z, 40, 140);
+    text(" Z finger - Z plane : " + abs(relativeTouchPoint.z), 40, 160);
+    if (relativeTouchPoint.z < 1) {
       ellipse(x + relativeTouchPoint.x * w, y + relativeTouchPoint.y * h, 10, 10);
       robot.mouseMove(int(x + relativeTouchPoint.x * w), int(y + relativeTouchPoint.y * h));
       if(!isMousePressed){
