@@ -7,6 +7,8 @@
 import de.voidplus.leapmotion.*;
 import java.awt.*;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import javax.swing.*;
 
 
 int x=0, y=0, w=0, h=0;
@@ -91,6 +93,14 @@ void calibrate() {
   // If all corners are registered then create calibration matrix
   if (calibrated()) {
     plane = makePlane();
+    robot.keyPress(KeyEvent.VK_META);
+    robot.keyPress(KeyEvent.VK_H);
+    robot.keyPress(KeyEvent.VK_WINDOWS);
+    robot.keyPress(KeyEvent.VK_M);
+    robot.keyRelease(KeyEvent.VK_META);
+    robot.keyRelease(KeyEvent.VK_H);
+    robot.keyRelease(KeyEvent.VK_WINDOWS);
+    robot.keyRelease(KeyEvent.VK_M);
   }
 }
 
@@ -150,19 +160,28 @@ void moveMouse() {
     text("Z corner top right : " + corners.get(1).z, 40, 120);
     text("Z corner bottom left : " + corners.get(2).z, 40, 140);
     text(" Z finger - Z plane : " + abs(relativeTouchPoint.z), 40, 160);
+    if (relativeTouchPoint.z < 1.1) {
+          robot.mouseMove(int(x + relativeTouchPoint.x * w), int(y + relativeTouchPoint.y * h));
+    }
     if (relativeTouchPoint.z < 1) {
-      ellipse(x + relativeTouchPoint.x * w, y + relativeTouchPoint.y * h, 10, 10);
-      robot.mouseMove(int(x + relativeTouchPoint.x * w), int(y + relativeTouchPoint.y * h));
       if(!isMousePressed){
-        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        robot.mousePress(InputEvent.BUTTON1_MASK);
         isMousePressed=true;
       }
-    } else {
-      robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+    } else if (isMousePressed) {
+      try {
+        Thread.sleep(50);
+      } catch(Exception e) {
+      }
+      robot.mouseRelease(InputEvent.BUTTON1_MASK);
       isMousePressed=false;
     }
-  } else {
-      robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-      isMousePressed=false;
+  } else if (isMousePressed) {
+    try {
+      Thread.sleep(50);
+    } catch(Exception e) {
+    }
+    robot.mouseRelease(InputEvent.BUTTON1_MASK);
+    isMousePressed=false;
   }
 }
