@@ -22,9 +22,9 @@ void setup() {
   fullScreen(1);
   ellipseMode(CENTER);
   x = 200;
-  y = 150;
-  w = 900;
-  h = 700;
+  y = 200;
+  w = width-400;
+  h = height-400;
   corners = new ArrayList<PVector>();
   leap = new LeapMotion(this);
   try {
