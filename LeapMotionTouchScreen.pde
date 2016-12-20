@@ -1,4 +1,3 @@
-
 /**
  * MirrorOS Controller (Leap Motion Touch Screen)
  * 
@@ -132,9 +131,9 @@ PVector[] makePlane() {
 // Formulas here : http://www.ambrsoft.com/TrigoCalc/Plan3D/PlaneLineIntersection_.htm
 PVector intersection(PVector[] plane, PVector[] line){
   float d = - (plane[0].x*plane[1].x + plane[0].y*plane[1].y + plane[0].z*plane[1].z);
-  float xi = line[0].x - ((line[1].x*(plane[1].x*line[0].x + plane[0].y*line[1].y + plane[0].z*line[1].z + d))/(plane[1].x*line[1].x + plane[1].y*line[1].y + plane[1].z*line[1].z));
-  float yi = line[0].y - ((line[1].x*(plane[1].x*line[0].x + plane[0].y*line[1].y + plane[0].z*line[1].z + d))/(plane[1].x*line[1].x + plane[1].y*line[1].y + plane[1].z*line[1].z));
-  float zi = line[0].z - ((line[1].x*(plane[1].x*line[0].x + plane[0].y*line[1].y + plane[0].z*line[1].z + d))/(plane[1].x*line[1].x + plane[1].y*line[1].y + plane[1].z*line[1].z));
+  float xi = line[0].x - ((line[1].x*(plane[1].x*line[0].x + plane[1].y*line[0].y + plane[1].z*line[0].z + d))/(plane[1].x*line[1].x + plane[1].y*line[1].y + plane[1].z*line[1].z));
+  float yi = line[0].y - ((line[1].y*(plane[1].x*line[0].x + plane[1].y*line[0].y + plane[1].z*line[0].z + d))/(plane[1].x*line[1].x + plane[1].y*line[1].y + plane[1].z*line[1].z));
+  float zi = line[0].z - ((line[1].z*(plane[1].x*line[0].x + plane[1].y*line[0].y + plane[1].z*line[0].z + d))/(plane[1].x*line[1].x + plane[1].y*line[1].y + plane[1].z*line[1].z));
   return new PVector(xi, yi, zi);
 }
 
@@ -147,24 +146,17 @@ void moveMouse() {
   && leap.getHands().get(0).getIndexFinger() != null) {
     Finger fingerIndex = leap.getHands().get(0).getIndexFinger();
     
-    PVector[] line = new PVector[]{fingerIndex.getPosition(), fingerIndex.getDirection()};
+    PVector[] line = new PVector[]{fingerIndex.getStabilizedPosition(),  plane[1]};
     PVector intersectionPoint = intersection(plane, line);
     PVector relativeTouchPoint = new PVector((intersectionPoint.x - corners.get(0).x)/(corners.get(1).x - corners.get(0).x),
                                              1 - (intersectionPoint.y - corners.get(2).y)/(corners.get(0).y - corners.get(2 ).y),
-                                             abs((plane[1].z - line[0].z)/(plane[1].z - plane[0].z)));
+                                             intersectionPoint.z - line[0].z);
     fill(255);
-    text("Z finger : " + line[0].z, 40, 40);
-    text("Z intersection : " + intersectionPoint.z, 40, 60);
-    text("Z plane : " + plane[1].z, 40, 80);
-    text("Z corner top left : " + corners.get(0).z, 40, 100);
-    text("Z corner top right : " + corners.get(1).z, 40, 120);
-    text("Z corner bottom left : " + corners.get(2).z, 40, 140);
-    text(" Z finger - Z plane : " + abs(relativeTouchPoint.z), 40, 160);
-    if (relativeTouchPoint.z < 1.1) {
-          robot.mouseMove(int(x + relativeTouchPoint.x * w), int(y + relativeTouchPoint.y * h));
-    }
+    robot.mouseMove(int(x + relativeTouchPoint.x * w), int(y + relativeTouchPoint.y * h));
     if (relativeTouchPoint.z < 1) {
+        text("mousePrssed : "  + isMousePressed, 40, 20);
       if(!isMousePressed){
+        text("Pressed ", 40, 40);
         robot.mousePress(InputEvent.BUTTON1_MASK);
         isMousePressed=true;
       }
