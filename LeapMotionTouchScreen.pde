@@ -155,7 +155,7 @@ void moveMouse() {
                                              1 - (intersectionPoint.y - corners.get(2).y)/(corners.get(0).y - corners.get(2 ).y),
                                              intersectionPoint.z - line[0].z);
     fill(255);
-    if (relativeTouchPoint.z < 2) {
+    if (relativeTouchPoint.z < 10) {
       robot.mouseMove(int(x + relativeTouchPoint.x * w), int(y + relativeTouchPoint.y * h));
     }
     if (relativeTouchPoint.z < 1) {
