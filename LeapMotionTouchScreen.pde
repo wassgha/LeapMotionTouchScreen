@@ -17,8 +17,11 @@ LeapMotion leap;
 Robot robot;
 boolean isMousePressed = false;
 
+void settings() {
+  fullScreen();
+}
+
 void setup() {
-  fullScreen(1);
   ellipseMode(CENTER);
   x = 200;
   y = 200;
@@ -50,7 +53,7 @@ void draw() {
 }
 
 boolean calibrated() {
-  return corners.size()>=4;
+  return corners.size()>=3;
 }
 
 void calibrate() {
@@ -69,9 +72,6 @@ void calibrate() {
     case 2:
       ellipse(x, y + h, 50, 50);
       break;
-    case 3:
-      ellipse(x + w, y + h, 50, 50);
-      break;
   }
   noStroke();
   
@@ -89,17 +89,20 @@ void calibrate() {
     corners.add(fingerIndex.getPosition());
   }
   
-  // If all corners are registered then create calibration matrix
+  // If all corners are registered then create calibration plane and hide the window
   if (calibrated()) {
     plane = makePlane();
-    robot.keyPress(KeyEvent.VK_META);
-    robot.keyPress(KeyEvent.VK_H);
-    robot.keyPress(KeyEvent.VK_WINDOWS);
-    robot.keyPress(KeyEvent.VK_M);
-    robot.keyRelease(KeyEvent.VK_META);
-    robot.keyRelease(KeyEvent.VK_H);
-    robot.keyRelease(KeyEvent.VK_WINDOWS);
-    robot.keyRelease(KeyEvent.VK_M);
+    if (System.getProperty("os.name").contains("Mac OS")) {
+      robot.keyPress(KeyEvent.VK_META);
+      robot.keyPress(KeyEvent.VK_H);
+      robot.keyRelease(KeyEvent.VK_META);
+      robot.keyRelease(KeyEvent.VK_H);
+    } else {
+      robot.keyPress(KeyEvent.VK_WINDOWS);
+      robot.keyPress(KeyEvent.VK_M);
+      robot.keyRelease(KeyEvent.VK_WINDOWS);
+      robot.keyRelease(KeyEvent.VK_M);
+    }
   }
 }
 
@@ -152,7 +155,9 @@ void moveMouse() {
                                              1 - (intersectionPoint.y - corners.get(2).y)/(corners.get(0).y - corners.get(2 ).y),
                                              intersectionPoint.z - line[0].z);
     fill(255);
-    robot.mouseMove(int(x + relativeTouchPoint.x * w), int(y + relativeTouchPoint.y * h));
+    if (relativeTouchPoint.z < 2) {
+      robot.mouseMove(int(x + relativeTouchPoint.x * w), int(y + relativeTouchPoint.y * h));
+    }
     if (relativeTouchPoint.z < 1) {
         text("mousePrssed : "  + isMousePressed, 40, 20);
       if(!isMousePressed){
