@@ -32,7 +32,7 @@ void setup() {
   try {
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     GraphicsDevice[] gs = ge.getScreenDevices();
-    robot = new Robot(gs[0]);
+    robot = new Robot(MouseInfo.getPointerInfo().getDevice());
   } catch (Exception e) {
     e.printStackTrace();
   }
