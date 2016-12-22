@@ -28,7 +28,7 @@ void setup() {
   w = width-400;
   h = height-400;
   corners = new ArrayList<PVector>();
-  leap = new LeapMotion(this);
+  leap = new LeapMotion(this).allowGestures("screen_tap");
   try {
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     GraphicsDevice[] gs = ge.getScreenDevices();
@@ -181,4 +181,11 @@ void moveMouse() {
     robot.mouseRelease(InputEvent.BUTTON1_MASK);
     isMousePressed=false;
   }
+}
+
+void leapOnScreenTapGesture(ScreenTapGesture g){
+  robot.mousePress(InputEvent.BUTTON1_MASK);
+  isMousePressed=true;
+  robot.mouseRelease(InputEvent.BUTTON1_MASK);
+  isMousePressed=false;
 }
