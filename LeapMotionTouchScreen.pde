@@ -18,15 +18,15 @@ Robot robot;
 boolean isMousePressed = false;
 
 void settings() {
-  fullScreen();
+  fullScreen(2);
 }
 
 void setup() {
   ellipseMode(CENTER);
-  x = 200;
-  y = 200;
-  w = width-400;
-  h = height-400;
+  x = 300;
+  y = 300;
+  w = width-600;
+  h = height-600;
   corners = new ArrayList<PVector>();
   leap = new LeapMotion(this).allowGestures("screen_tap");
   try {
@@ -155,6 +155,7 @@ void moveMouse() {
                                              1 - (intersectionPoint.y - corners.get(2).y)/(corners.get(0).y - corners.get(2 ).y),
                                              intersectionPoint.z - line[0].z);
     fill(255);
+    text("Z " + relativeTouchPoint.z, 200, 10);
     if (relativeTouchPoint.z < 10) {
       robot.mouseMove(int(x + relativeTouchPoint.x * w), int(y + relativeTouchPoint.y * h));
     }
